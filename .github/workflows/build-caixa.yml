@@ -1,0 +1,25 @@
+name: .NET Build TechCase
+
+on:
+  pull_request:
+    branches: [ "development", "qa", "release-candidate", "release-version","hotfix-version", "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Run Unit Tests
+      working-directory: .
+      run: dotnet test --no-build --collect:"XPlat Code Coverage" 
