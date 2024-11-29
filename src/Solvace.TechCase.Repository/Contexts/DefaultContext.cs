@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Solvace.TechCase.Domain.Entities.ActionPlan;
 using Solvace.TechCase.Domain.Entities.ActionPlan.Enums;
+using Solvace.TechCase.Domain.Entities.Product;
 
 namespace Solvace.TechCase.Repository.Contexts;
 
@@ -9,9 +10,7 @@ public class DefaultContext : DbContext
     public DefaultContext(DbContextOptions options) : base(options) { }
     public DbSet<ActionPlan> ActionPlans { get; set; }
     public DbSet<ActionPlanStatus> ActionPlanStatus { get; set; }
-
-
-
+    public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,7 +25,5 @@ public class DefaultContext : DbContext
                 ExternalId = Guid.NewGuid().ToString()
             });
         }
-
-
     }
 }

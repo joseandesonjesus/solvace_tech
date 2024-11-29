@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using Solvace.TechCase.Domain.Entities.ActionPlan.Enums;
 
 namespace Solvace.TechCase.Domain.Entities.ActionPlan.Dtos
@@ -15,7 +11,7 @@ namespace Solvace.TechCase.Domain.Entities.ActionPlan.Dtos
         /// </summary>
         [MaxLength(50)]
         [MinLength(3)]
-        public required string Name { get; set; }
+        public required string Name { get; set; }        
 
         /// <summary>
         /// A detailed description of the action plan, with a maximum length of 4000 characters.
@@ -26,7 +22,9 @@ namespace Solvace.TechCase.Domain.Entities.ActionPlan.Dtos
 
         public EActionPlanStatus StatusId { get; set; }
 
-        
+        [MaxLength(30)]
+        [MinLength(3)]
+        public required string TypeName { get; set; }
 
     }
 }

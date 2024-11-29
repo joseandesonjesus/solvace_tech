@@ -1,6 +1,9 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Solvace.TechCase.API.Middleware;
+using Solvace.TechCase.Domain.Interfaces;
 using Solvace.TechCase.Repository.Contexts;
+using Solvace.TechCase.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +17,9 @@ builder.Services.AddDbContext<DefaultContext>(
         .EnableDetailedErrors()
     );
 
+builder.Services.AddScoped<IActionPlanService, ActionPlanService>();
+builder.Services.AddScoped<IProductServices, ProductService>();
+
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
@@ -24,6 +30,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
