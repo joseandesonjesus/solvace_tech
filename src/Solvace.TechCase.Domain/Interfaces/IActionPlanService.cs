@@ -10,6 +10,6 @@ namespace Solvace.TechCase.Domain.Interfaces
         Task<ActionPlanDto> UpdateActionPlanAsync(int id, UpdateActionPlanDto updateDto);
         Task<ActionPlanDto> DeactivateActionPlanAsync(int id);
         Task<ActionPlanDto> GetActionPlanByIdAsync(int id);
-        Task<PaginationDto> GetAllActionPlansAsync(int pageNumber, int pageSize);
+        Task<PaginationDto<ActionPlanDto>> GetAllActionPlansAsync(int pageNumber, int pageSize);
     }
 }

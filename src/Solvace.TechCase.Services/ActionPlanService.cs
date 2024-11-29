@@ -20,11 +20,11 @@ namespace Solvace.TechCase.Services
 
         public async Task<ActionPlanDto> CreateAsync(CreateActionPlan plan)
         {
-        
+
+            try
+            {
                 if (!Enum.IsDefined(typeof(EActionPlanStatus), plan.StatusId))
-                {
                     throw new ArgumentException("StatusId inválido.");
-                }
 
                 var newPlan = ActionPlan.Factories.Create(
                     name: plan.Name,
@@ -37,6 +37,11 @@ namespace Solvace.TechCase.Services
                 await _context.SaveChangesAsync();
 
                 return newPlan.AsActionPlanDto();
+            }
+            catch
+            {
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
+            }
         }
 
         public async Task<ActionPlanDto> EndActionPlanAsync(int id)
@@ -55,80 +60,95 @@ namespace Solvace.TechCase.Services
 
                 return actionPlan.AsActionPlanDto();
             }
-            catch (Exception ex)
+            catch
             {
-
-                throw;
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
             }
-
         }
 
         public async Task<ActionPlanDto> UpdateActionPlanAsync(int id, UpdateActionPlanDto updateDto)
         {
-            var actionPlan = await _context.ActionPlans
-                                            .AsNoTracking()
-                                            .FirstOrDefaultAsync(ap => ap.Id == id
-                                                                    && ap.IsActive
-                                                                    && !ap.ActionPlanStatusId.Equals((int)EActionPlanStatus.COMPLETED));
+            try
+            {
+                var actionPlan = await _context.ActionPlans
+                                                .AsNoTracking()
+                                                .FirstOrDefaultAsync(ap => ap.Id == id
+                                                                        && ap.IsActive
+                                                                        && !ap.ActionPlanStatusId.Equals((int)EActionPlanStatus.COMPLETED));
 
-            if (actionPlan == null)
-                throw new KeyNotFoundException("Action Plan not found.");
+                if (actionPlan == null)
+                    throw new KeyNotFoundException("Action Plan not found.");
 
-            actionPlan.Name = updateDto.Name;
-            actionPlan.Description = updateDto.Description;
+                actionPlan.Name = updateDto.Name;
+                actionPlan.Description = updateDto.Description;
 
-            _context.ActionPlans.Update(actionPlan);
-            await _context.SaveChangesAsync();
+                _context.ActionPlans.Update(actionPlan);
+                await _context.SaveChangesAsync();
 
-            return actionPlan.AsActionPlanDto();
+                return actionPlan.AsActionPlanDto();
+            }
+            catch
+            {
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
+            }
         }
 
         public async Task<ActionPlanDto> DeactivateActionPlanAsync(int id)
         {
-            var actionPlan = await _context.ActionPlans
-                                            .AsNoTracking()
-                                            .FirstOrDefaultAsync(ap => ap.Id == id && ap.IsActive);
-
-            if (actionPlan == null)
+            try
             {
-                throw new KeyNotFoundException("Action Plan não encontrado.");
+                var actionPlan = await _context.ActionPlans
+                                                .AsNoTracking()
+                                                .FirstOrDefaultAsync(ap => ap.Id == id && ap.IsActive);
+
+                if (actionPlan == null)
+                    throw new KeyNotFoundException("Action Plan not found.");
+
+                actionPlan.IsActive = false;
+                _context.ActionPlans.Update(actionPlan);
+                await _context.SaveChangesAsync();
+
+                return actionPlan.AsActionPlanDto();
             }
-
-            actionPlan.IsActive = false;
-            _context.ActionPlans.Update(actionPlan);
-            await _context.SaveChangesAsync();
-
-            return actionPlan.AsActionPlanDto();
+            catch
+            {
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
+            }
         }
 
         public async Task<ActionPlanDto> GetActionPlanByIdAsync(int id)
         {
-            var actionPlan = await _context.ActionPlans
-                                            .AsNoTracking()
-                                            .FirstOrDefaultAsync(ap => ap.Id == id);
+            try
+            {
+                var actionPlan = await _context.ActionPlans
+                                                .AsNoTracking()
+                                                .FirstOrDefaultAsync(ap => ap.Id == id);
 
-            if (actionPlan == null)
-                throw new KeyNotFoundException("Action Plan not found.");
+                if (actionPlan == null)
+                    throw new KeyNotFoundException("Action Plan not found.");
 
-            return actionPlan.AsActionPlanDto();
+                return actionPlan.AsActionPlanDto();
+            }
+            catch
+            {
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
+            }
         }
 
-        public async Task<PaginationDto> GetAllActionPlansAsync(int pageNumber, int pageSize)
+        public async Task<PaginationDto<ActionPlanDto>> GetAllActionPlansAsync(int pageNumber, int pageSize)
         {
-            var source = _context.ActionPlans.AsNoTracking();
-            var (items, totalCount) = await source.PaginateAsync(pageNumber, pageSize);
-
-            var actionPlans = items.Select(plan => new ActionPlanDto
+            try
             {
-                Id = plan.Id.ToString(),
-                Name = plan.Name,
-                Description = plan.Description,
-                Status = plan.ActionPlanStatusId,
-                TypeName = plan.TypeName,
-                EndedAt = plan.EndedAt
-            }).ToList();
+                var (actionPlans, totalCount) = await _context.ActionPlans.AsNoTracking()
+                                                                    .PaginateAsync(pageNumber, pageSize);
 
-            return new PaginationDto(actionPlans, totalCount, pageNumber, pageSize);
+                return actionPlans.Select(x => x.AsActionPlanDto())
+                                  .AsPaginationDto(totalCount, pageNumber, pageSize);
+            }
+            catch
+            {
+                throw new ApplicationException("Application failed to create product, try later or contact administrator");
+            }
         }
     }
 }
